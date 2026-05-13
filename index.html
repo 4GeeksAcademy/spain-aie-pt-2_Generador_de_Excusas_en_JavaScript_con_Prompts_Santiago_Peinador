@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Portal digital de control de ingreso con excusas automáticas" />
+		<meta name="author" content="Santiago Peinador" />
+		<title>Portal de Ingreso y Excusas</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Bungee:wght@400&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<div class="bg-orb orb-2" aria-hidden="true"></div>
+
+		<header class="page-header">
+			<h1>Registro de retrasos empresa</h1>
+		</header>
+
+		<main class="container">
+			<div class="left-panel">
+				<section class="panel calendar-panel">
+					<div class="calendar-top">
+						<h2>Calendario de Excusas</h2>
+						<div class="calendar-nav">
+							<button id="prev-month-btn" type="button" aria-label="Mes anterior">◀</button>
+							<strong id="calendar-month-label">Mes</strong>
+							<button id="next-month-btn" type="button" aria-label="Mes siguiente">▶</button>
+						</div>
+					</div>
+
+					<div class="calendar-weekdays">
+						<span>Lun</span>
+						<span>Mar</span>
+						<span>Mie</span>
+						<span>Jue</span>
+						<span>Vie</span>
+						<span>Sab</span>
+						<span>Dom</span>
+					</div>
+
+					<div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+
+					<div class="calendar-day-detail">
+						<h3 id="calendar-day-title">Excusas del dia</h3>
+						<ul id="calendar-day-list" class="history-list compact"></ul>
+					</div>
+
+					<div class="ellipsis" onclick="openCalendarModal()">...</div>
+				</section>
+			</div>
+
+			<div class="center-panel">
+				<section class="panel generator" aria-live="polite">
+					<h2>Formulario de excusas</h2>
+					<div class="panel-top">
+						<span class="badge">Validación horaria</span>
+						<div class="stat">
+							<span class="stat-label">Solicitudes registradas</span>
+							<strong id="total-generated">0</strong>
+						</div>
+					</div>
+
+					<div class="employee-form">
+						<label for="employee-name">Nombre</label>
+						<input id="employee-name" type="text" placeholder="Nombre completo" />
+						<label for="employee-id">ID empresa</label>
+						<input id="employee-id" type="text" placeholder="Ej: EMP-103" />
+						<label for="checkin-date">Fecha</label>
+						<input id="checkin-date" type="date" />
+						<label for="checkin-time" class="time-label">Hora de ingreso</label>
+						<input id="checkin-time" type="time" required />
+						<button id="check-btn" type="button">Evaluar hora</button>
+					</div>
+
+					<p id="status-message" class="status-message">Esperando una hora de ingreso para evaluar.</p>
+
+					<div id="processing-indicator" class="processing hidden" role="status" aria-live="polite">
+						<span class="spinner" aria-hidden="true"></span>
+						<span>Procesando solicitud...</span>
+					</div>
+
+					<p id="excuse" class="excuse">Cargando excusa...</p>
+
+					<div class="controls">
+						<button id="register-btn" type="button">Registrar solicitud</button>
+					</div>
+					<p id="helper" class="helper-text">La excusa solo se activa para ingresos entre 09:31 y 18:00.</p>
+
+					<div class="pending-requests-panel">
+						<div class="pending-requests-top">
+							<h3>Solicitudes pendientes</h3>
+							<div class="pending-requests-nav">
+								<button id="prev-pending-btn" type="button" aria-label="Pagina anterior de solicitudes">◀</button>
+								<strong id="pending-page-label">Pagina 1</strong>
+								<button id="next-pending-btn" type="button" aria-label="Pagina siguiente de solicitudes">▶</button>
+							</div>
+						</div>
+						<ul id="history-list" class="history-list"></ul>
+					</div>
+				</section>
+			</div>
+
+			<div class="right-panel">
+				<section class="panel dismissals-panel">
+					<div class="dismissals-top">
+						<h2>Despidos por Retrasos</h2>
+						<div class="dismissals-nav">
+							<button id="prev-dismissals-btn" type="button" aria-label="Pagina anterior de despidos">◀</button>
+							<strong id="dismissals-page-label">Pagina 1</strong>
+							<button id="next-dismissals-btn" type="button" aria-label="Pagina siguiente de despidos">▶</button>
+						</div>
+					</div>
+					<ul id="dismissals-list" class="history-list">
+						<li>Sin registros todavía.</li>
+					</ul>
+				</section>
+			</div>
+		</main>
+
+		<div id="boss-call-modal" class="call-modal hidden" role="dialog" aria-modal="true" aria-labelledby="boss-call-title">
+			<div class="call-box">
+				<button id="boss-close-btn" type="button" class="call-close" aria-label="Cerrar llamada">✕</button>
+				<p class="call-kicker">Llamada entrante</p>
+				<h2 id="boss-call-title">Jefe de Area</h2>
+				<div class="call-contact">
+					<img
+						class="boss-avatar"
+						src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=640&q=80"
+						alt="Contacto Jesus Jefe"
+					/>
+					<div>
+						<strong>Jesus Jefe</strong>
+						<p>Contacto de direccion</p>
+					</div>
+				</div>
+				<p id="boss-call-message" class="call-message">Tu jefe te esta llamando por la solicitud cancelada.</p>
+				<div class="call-actions">
+					<button id="boss-hangup-btn" type="button" class="call-btn hangup">Colgar</button>
+					<button id="boss-attend-btn" type="button" class="call-btn attend">Atender</button>
+					<button id="boss-mute-btn" type="button" class="call-btn mute">Mutear</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="calendar-modal" id="calendar-modal">
+			<div class="modal-content">
+				<h3>Todos los registros del calendario</h3>
+				<ul id="all-calendar-records" class="history-list"></ul>
+				<button class="close-btn" onclick="closeCalendarModal()">Cerrar</button>
+			</div>
+		</div>
+
+		<script src="excuse-generator.js"></script>
+	</body>
+</html>
